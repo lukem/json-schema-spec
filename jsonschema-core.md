@@ -189,7 +189,7 @@ always be given the media type `application/schema+json` rather than
 defined to offer a superset of the fragment identifier syntax and semantics
 provided by `application/schema-instance+json`.
 
-A JSON Schema MUST be an object or a boolean.
+A JSON Schema MUST be an object, a boolean, or a string.
 
 #### JSON Schema Objects and Keywords
 
@@ -238,6 +238,28 @@ this document).
 While the empty schema object is unambiguous, there are many possible
 equivalents to the `false` schema. Using the boolean values ensures that the
 intent is clear to both human readers and implementations.
+
+#### String JSON Schemas
+
+A string schema operates as an implicit reference to another schema object.
+A string schema is a shorthand for a schema containing only the `$ref` keyword.
+
+For example, the string schema
+
+```json
+"https://example.com/schema"
+```
+
+is equivalent to
+
+```json
+{
+  "$ref": "https://example.com/schema"
+}
+```
+
+For a string to operate as a schema, the value MUST conform to the requirements
+defined in {{ref}}.
 
 #### Schema Vocabularies
 
@@ -1188,7 +1210,7 @@ the positive integer constraint is a subschema in `$defs`:
 ```jsonschema
 {
   "type": "array",
-  "items": { "$ref": "#/$defs/positiveInteger" },
+  "items": "#/$defs/positiveInteger",
   "$defs": {
     "positiveInteger": {
       "type": "integer",
@@ -1309,12 +1331,12 @@ For example, consider this schema:
 {
   "$id": "https://example.net/root.json",
   "type": "array",
-  "items": { "$ref": "#item" },
+  "items": "#item",
   "$defs": {
     "single": {
       "$anchor": "item",
       "type": "object",
-      "additionalProperties": { "$ref": "other.json" }
+      "additionalProperties": "other.json"
     }
   }
 }
@@ -1386,9 +1408,7 @@ value for `$ref`:
 ```jsonschema
 {
   "$id": "https://example.com/foo",
-  "items": {
-    "$ref": "bar"
-  }
+  "items": "bar"
 }
 ```
 
@@ -2263,9 +2283,7 @@ For these examples, the following schema and instances will be used.
         }
       ]
     },
-    "bar": {
-      "$ref": "#/$defs/bar"
-    }
+    "bar": "#/$defs/bar"
   },
   "$defs": {
     "bar": {
@@ -3164,10 +3182,10 @@ This meta-schema combines several vocabularies for general use.
     "https://example.com/vocab/example-vocab": true
   },
   "allOf": [
-    {"$ref": "https://json-schema.org/draft/next/meta/core"},
-    {"$ref": "https://json-schema.org/draft/next/meta/applicator"},
-    {"$ref": "https://json-schema.org/draft/next/meta/validation"},
-    {"$ref": "https://example.com/meta/example-vocab"},
+    "https://json-schema.org/draft/next/meta/core",
+    "https://json-schema.org/draft/next/meta/applicator",
+    "https://json-schema.org/draft/next/meta/validation",
+    "https://example.com/meta/example-vocab",
   ],
   "patternProperties": {
     "^unevaluated": false
@@ -3244,18 +3262,14 @@ purposes, and is not intended to propose a functional code generation keyword.
       "classRelation": "is-a",
       "$ref": "classes/base.json"
     },
-    {
-      "$ref": "fields/common.json"
-    }
+    "fields/common.json"
   ],
   "properties": {
     "foo": {
       "classRelation": "has-a",
       "$ref": "classes/foo.json"
     },
-    "date": {
-      "$ref": "types/dateStruct.json",
-    }
+    "date": "types/dateStruct.json",
   }
 }
 ```
@@ -3291,6 +3305,7 @@ to the document.
 - Use IRIs instead of URIs
 - Remove bookending requirement for `$dynamicRef`
 - Add `propertyDependencies` keyword
+- Add string schemas as implicit references
 
 ### draft-bhutton-json-schema-01
 - Improve and clarify the `type`, `contains`, `unevaluatedProperties`, and

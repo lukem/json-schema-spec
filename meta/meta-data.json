@@ -8,7 +8,8 @@
 
     "title": "Meta-data vocabulary meta-schema",
 
-    "type": ["object", "boolean"],
+    "type": ["object", "boolean", "string"],
+    "format": "iri-reference",
     "properties": {
         "title": {
             "type": "string"
